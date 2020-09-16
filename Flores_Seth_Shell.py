@@ -45,10 +45,10 @@ def run_cmd(command):
                 os.execve(prog,args,os.environ)#attempt running program at given path
             except FileNotFoundError:
                 os.write(1,("File not found at %s\n" % prog).encode())#give user failure
-        if '|' in args:
-            writeCommands = args[0:args.index("|")]
-            readCommands = args[args.index("|") + 1:]
-            pr, pw = os.pipe()
+#        if '|' in args:
+#           writeCommands = args[0:args.index("|")]
+#          readCommands = args[args.index("|") + 1:]
+#           pr, pw = os.pipe()
     elif not '&' in command:
         childPidCode = os.wait()#wait and get child pid with return code
             
