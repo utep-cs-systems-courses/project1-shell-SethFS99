@@ -1,9 +1,11 @@
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Created on Tue Sep 15 18:26:48 2020
 
 @author: sethf
 """
+
 import os, sys, time, re
 
 def exe(args): #exec
@@ -12,8 +14,9 @@ def exe(args): #exec
         try:
             os.execve(program, args, os.environ) # try to execute program
         except FileNotFoundError:
-            os.write(1,("File not found...").encode())
-            sys.exit(1)
+            pass
+        os.write(2, ("Command %s not found. Try again.\n" % args[0]).encode())
+        sys.exit(1)
 
 
 def run_cmd(command):
@@ -33,22 +36,29 @@ def run_cmd(command):
             os.set_inheritable(1, True)#allows child to inherit
             newArg = args[0:args.index(">")]#updates arguments to get the cmd we need to run
             exe(newArg)
-        if '<' in args:#redirect input
+        elif '<' in args:#redirect input
             os.close(0)#close current read
             os.open(args[-1], os.O_RDONLY);#opens input to read from
             os.set_inheritable(0, True)#allows child to inherit
             newArg = args[0:args.index("<")]#updates arguments to get the cmd we need to run
             exe(newArg)
-        if '/' in args[0]:
+        elif '/' in args[0]:
             prog = args[0]#get program path
             try:
                 os.execve(prog,args,os.environ)#attempt running program at given path
             except FileNotFoundError:
                 os.write(1,("File not found at %s\n" % prog).encode())#give user failure
-#        if '|' in args:
-#           writeCommands = args[0:args.index("|")]
-#          readCommands = args[args.index("|") + 1:]
-#           pr, pw = os.pipe()
+        elif '|' in args:
+            writeCommands = args[0:args.index("|")]
+            readCommands = args[args.index("|") + 1:]
+            pr, pw = os.pipe()
+        #no command runs so just run cmd givin
+        exe(args)
+#        if "ls" in args:
+#            items = os.listdir(os.getcwd())#lists current items in current dir
+#            for i in range(len(items)):
+#                os.write(1,(items[i]+ "\t").encode())  
+#            os.write(1,("\n").encode())
     elif not '&' in command:
         childPidCode = os.wait()#wait and get child pid with return code
             
